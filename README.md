@@ -27,7 +27,7 @@ REMOTE_USERNAME='username'
 REMOTE_PASSWORD='password'
 xargs -L 1 -a <(awk 'BEGIN{OFS="\t"}{print " -i "$2 " -o "$1".nxs"}' < hostname2ip.txt) \
   ./generate_nx_session_file.sh \
-  -t template.nxs \
-  -u ${REMOTE_USERNAME} \
-  -p ${REMOTE_PASSWORD}
+    -t template.nxs \
+    -u ${REMOTE_USERNAME} \
+    -p ${REMOTE_PASSWORD}
 ```
