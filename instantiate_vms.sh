@@ -84,7 +84,7 @@ esac
 #####
 echo "Booting VMs ... "
 n_booted=0
-wait_every_n_instantiated=2
+wait_every_n_instantiated=5
 LAST=$((FIRST+N_VMs-1))
 for i in `seq --format="${FORMAT}" ${FIRST} ${LAST}`; do
   INSTANCE_NAME="${VM_NAME_PREFIX}${i}"
