@@ -55,6 +55,8 @@ then
   exit 1
 fi
 
+
+# We embed the NX password scrambling script in a "heredoc" so we don't have to maintain it as a seperate file
 NX_PASSWORD_SCRAMBLER_SCRIPT=`mktemp --tmpdir=/tmp`
 cat > ${NX_PASSWORD_SCRAMBLER_SCRIPT} <<'__NX_PASSWORD_SCRAMBLER__'
 #!/usr/bin/perl
