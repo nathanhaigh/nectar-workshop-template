@@ -2,7 +2,6 @@
 usage="USAGE: $(basename $0) [-h] [-t <template NX session filename>] -i <ip or hostname> -u <username> -p <password> -o <output NX session filename>
 
 Using a hostname to IP address map file called hostname2ip.txt:
-  xargs: xargs -L 1 -a <(awk 'BEGIN{OFS=\"\t\"}{print \" -i \"\$2 \" -o \"\$1\".nxs\"}' < hostname2ip.txt) ./generate_nx_session_files.sh -t template.nxs -u username -p password
 
   where:
     -h Show this help text
@@ -34,7 +33,7 @@ case ${opt} in
        ;;
     p) USER_PASSWORD=${OPTARG}
        ;;
-    o) OUTPUT_SESSION_FILE=${OPTARG}
+    o) OUTPUT_SESSION_FILE=$(echo ${OPTARG} | tr '=,_' '-')
        ;;
     ?) printf "Illegal option: '-%s'\n" "${OPTARG}" >&2
        echo "${usage}" >&2
@@ -221,7 +220,11 @@ sub substr_replace {
   return $tmp_str;
 }
 __NX_PASSWORD_SCRAMBLER__
-USER_PASSWORD=$(perl ${NX_PASSWORD_SCRAMBLER_SCRIPT} ${USER_PASSWORD} | sed -e "s/[\@&]/\\&/g" && rm ${NX_PASSWORD_SCRAMBLER_SCRIPT})
+USER_PASSWORD=$(perl ${NX_PASSWORD_SCRAMBLER_SCRIPT} ${USER_PASSWORD})
+USER_PASSWORD=$(echo ${USER_PASSWORD} | sed -e "s/[\@&]/\\&/g")
+rm ${NX_PASSWORD_SCRAMBLER_SCRIPT}
 
-sed -e "s@<option key=\"Server host\" value=\"\" />@<option key=\"Server host\" value=\"${HOST_IP}\" />@; s@<option key=\"User\" value=\"\"@<option key=\"User\" value=\"${USER_NAME}\"@; s@<option key=\"Auth\" value=\"EMPTY_PASSWORD\"@<option key=\"Auth\" value=\""${USER_PASSWORD}"\"@" < ${NXS_TEMPLATE_FILE} > ${OUTPUT_SESSION_FILE}
+perl -ne 's@<option key="Server host" value="" />@<option key="Server host" value="'${HOST_IP}'" />@; s@<option key="User" value=""@<option key="User" value="'${USER_NAME}'"@; s@<option key="Auth" value="EMPTY_PASSWORD" />@<option key="Auth" value="'${USER_PASSWORD}'" />@; print' < ${NXS_TEMPLATE_FILE} > ${OUTPUT_SESSION_FILE}
+
+#sed -e 's@<option key="Server host" value="" />@<option key="Server host" value="'${HOST_IP}'" />@; s@<option key="User" value=""@<option key="User" value="'${USER_NAME}'"@; s@<option key="Auth" value="EMPTY_PASSWORD" />@<option key="Auth" value="'${USER_PASSWORD}'" />@; print' < ${NXS_TEMPLATE_FILE} > ${OUTPUT_SESSION_FILE}
 

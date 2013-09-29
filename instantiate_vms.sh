@@ -1,6 +1,6 @@
 #!/bin/bash
 
-usage="USAGE: $(basename $0) [-h] [-d] -i <image id> [-p <prefix>] [-u <script>] [-n <number of VMs>] [-f <int>] [-s <int>] [-x <string>] -k <ssh key>
+usage="USAGE: $(basename $0) [-h] [-d] -i <image id> [-p <prefix>] [-u <script>] [-n <number of VMs>] [-f <int>] [-s <int>] [-x <string>] -k <ssh key> [-c <cell>]
   where:
     -h Show this help text
     -d dry run
@@ -12,6 +12,7 @@ usage="USAGE: $(basename $0) [-h] [-d] -i <image id> [-p <prefix>] [-u <script>]
     -x Suffix format string [Default: %03.f]
     -s Instance size/flavour [Default: 1]
     -k SSH Key name
+    -c Cell on which to run the VMs [Default: Any]
 "
 
 # default command line argument values
@@ -25,9 +26,10 @@ SSH_KEY_NAME=
 FIRST=1
 FLAVOUR=1
 FORMAT='%03.f'
+CELL=
 
 # parse any command line options to change default values
-while getopts ":hdi:p:u:n:x:k:f:s:" opt; do
+while getopts ":hdi:p:u:n:x:k:f:s:c:" opt; do
 case $opt in
     h) echo "$usage"
        exit
@@ -49,6 +51,8 @@ case $opt in
     x) FORMAT=$OPTARG
        ;;
     k) SSH_KEY_NAME=$OPTARG
+       ;;
+    c) CELL=$OPTARG
        ;;
     ?) printf "Illegal option: '-%s'\n" "$OPTARG" >&2
        echo "$usage" >&2
@@ -94,7 +98,7 @@ for i in `seq --format="${FORMAT}" ${FIRST} ${LAST}`; do
     echo "Booting"
     (( n_booted++ ))
     if [[ ${DRYRUN} == 0 ]]; then
-        nova boot --flavor=${FLAVOUR} --image=${IMAGE_ID} ${INSTANCE_NAME} --security-groups="SSH" --key-name=${SSH_KEY_NAME} --user-data=${USER_DATA_FILE} --meta description="${VM_NAME_PREFIX}${i}" --meta creator='Nathan S. Watson-Haigh'
+        nova boot --hint cell=${CELL} --flavor=${FLAVOUR} --image=${IMAGE_ID} ${INSTANCE_NAME} --security-groups="SSH" --key-name=${SSH_KEY_NAME} --user-data=${USER_DATA_FILE} --meta description="${VM_NAME_PREFIX}${i}" --meta creator='Nathan S. Watson-Haigh'
     fi
   else
     echo "A VM with this name already exists"
