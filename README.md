@@ -1,3 +1,12 @@
+This repository contains code useful for instantiating VM on the Australian
+NeCTAR Rsearch Cloud (http://www.nectar.org.au/research-cloud). The scripts
+it contains, aid in the instantiation of multiple VM's configured with an NX
+server and the generation of NX Session files for use with NoMachine's 
+(http://www.nomachine.com/) NX Client v3.5.x (v4 not yet tested).
+
+What this means is that you can quickly instantiate many VM's and get a
+remote desktop-like connection using the NoMachine NX Client.
+
 # Launch Multiple VMs
 To launch multiple VMs you can use a command similar to the one below. Once the VMs are up-and-running, 
 a hostname-to-IP address mapping file ```hostname2ip.txt``` is also created.
@@ -20,8 +29,8 @@ FLAVOR_SIZE=1
 The NXServer image is based on Ubuntu 12.04 64bit but has been configured with an NX server. By default,
 these instantiated VMs will be named ```VM-???``` where ```???``` is ```001 - 030```.
 
-# Generating NX Session Files
-Generate the NX session files for all the VMs listed in the ```hostname2ip.txt``` file:
+# Generating NoMachine NX Session Files
+Generate the NoMachine NX session files for all the VMs listed in the ```hostname2ip.txt``` file:
 ```bash
 TEMPLATE_NX_SESSION_FILE='template.nxs'
 REMOTE_USERNAME='username'
@@ -33,6 +42,18 @@ xargs -L 1 -a <(awk '{gsub(/[=,_]/, "-", $1); print " --host ", $2, " --output "
     --username "${REMOTE_USERNAME}" \
     --password "${REMOTE_PASSWORD}"
 ```
+
+The supplied NoMachine template session file ```template.nxs``` will result in NX
+sessions running in "fullscreen" mode. That is, no window decorations will be
+visable. This is a useful configuration for when you do not want to expose users
+to the fact they are working on a remote computer.
+
+These session files can simply be "double-clicked" to run the NX client with very
+little further configuration. Once the session has connected, simply type
+```Ctrl + Alt + k``` so that the VM captures keystrokes such as ```Ctrl + Alt + Delete```,
+```Alt + Tab```. Once again, this helps to hide the fact that users are working
+on a remote computer. You can then choose the correct time to expose this to them,
+if indeed you do at all.
 
 # Customising VM's During Instantiation
 VM's launched from a particular image can be customised such that they differ from that
@@ -118,3 +139,19 @@ chmod +x /home/${REMOTE_USER_USERNAME}/Desktop/firefox_abn_link.desktop
 # by the correct user:
 chown --recursive ${REMOTE_USER_USERNAME}:${REMOTE_USER_USERNAME} /home/${REMOTE_USER_USERNAME}/
 ```
+
+The all we do is pass this file to ```instantiate_vms.sh``` using the ```-u``` argument like this:
+```bash
+NECTAR_IMAGE_ID='58cb2d08-325c-468d-93c6-877f9b327aed'
+KEYPAIR_NAME='my_keypair'
+NUMBER_OF_VMS=30
+FLAVOR_SIZE=1
+
+./instantiate_vms.sh \
+  -i ${NECTAR_IMAGE_ID} \
+  -k ${KEYPAIR_NAME} \
+  -n ${NUMBER_OF_VMS} \
+  -s ${FLAVOR_SIZE} \
+  -u "post-instantiation.sh"
+```
+
