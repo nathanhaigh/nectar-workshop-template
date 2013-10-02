@@ -20,10 +20,10 @@ NUMBER_OF_VMS=30
 FLAVOR_SIZE=1
 
 ./instantiate_vms.sh \
-  -i ${NECTAR_IMAGE_ID} \
-  -k ${KEYPAIR_NAME} \
-  -n ${NUMBER_OF_VMS} \
-  -s ${FLAVOR_SIZE}
+  -i "${NECTAR_IMAGE_ID}" \
+  -k "${KEYPAIR_NAME}" \
+  -n "${NUMBER_OF_VMS}" \
+  -s "${FLAVOR_SIZE}"
 ```
 
 The NXServer image is based on Ubuntu 12.04 64bit but has been configured with an NX server. By default,
@@ -67,12 +67,27 @@ base image. This is useful for things such as:
 * Setting the timezone
 * Adding convienient desktop links to applications, websites etc
 
-All you need do is to pass a script to ```instantiate_vms.sh``` using the ```-u```
-argument. This script is then executed by the root user during instantiation. Many
-languages are supported, just ensure you have the correct "shebang" line and the
-language is supported/installed on the base image.
+To do this, you can simply pass a script to ```instantiate_vms.sh``` using the ```-u```
+argument for performing these customisations:
+```bash
+NECTAR_IMAGE_ID='58cb2d08-325c-468d-93c6-877f9b327aed'
+KEYPAIR_NAME='my_keypair'
+NUMBER_OF_VMS=30
+FLAVOR_SIZE=1
 
-Here's an example file (```post-instantiation.sh```), written in Bash, for running on an Ubuntu 12.04 base image:
+CUSTOMISATION_SCRIPT='post-instantiation.sh'
+
+./instantiate_vms.sh \
+  -i "${NECTAR_IMAGE_ID}" \
+  -k "${KEYPAIR_NAME}" \
+  -n "${NUMBER_OF_VMS}" \
+  -s "${FLAVOR_SIZE}" \
+  -u "${CUSTOMISATION_SCRIPT}"
+```
+
+This script will then be executed by the ```root``` user during instantiation of the VMs. An example
+script (```post-instantiation.sh```), written in Bash, for running on an Ubuntu 12.04 base
+image could be:
 ```bash
 #!/bin/bash
 # Define some variables for use in the following script
@@ -140,18 +155,5 @@ chmod +x /home/${REMOTE_USER_USERNAME}/Desktop/firefox_abn_link.desktop
 chown --recursive ${REMOTE_USER_USERNAME}:${REMOTE_USER_USERNAME} /home/${REMOTE_USER_USERNAME}/
 ```
 
-The all we do is pass this file to ```instantiate_vms.sh``` using the ```-u``` argument like this:
-```bash
-NECTAR_IMAGE_ID='58cb2d08-325c-468d-93c6-877f9b327aed'
-KEYPAIR_NAME='my_keypair'
-NUMBER_OF_VMS=30
-FLAVOR_SIZE=1
-
-./instantiate_vms.sh \
-  -i ${NECTAR_IMAGE_ID} \
-  -k ${KEYPAIR_NAME} \
-  -n ${NUMBER_OF_VMS} \
-  -s ${FLAVOR_SIZE} \
-  -u "post-instantiation.sh"
-```
-
+Many languages are supported for this script, just ensure you have the correct "shebang" line and the
+language is supported/installed on the image you're instantiating.
