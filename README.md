@@ -23,11 +23,14 @@ these instantiated VMs will be named ```VM-???``` where ```???``` is ```001 - 03
 # Generating NX Session Files
 Generate the NX session files for all the VMs listed in the ```hostname2ip.txt``` file:
 ```bash
+TEMPLATE_NX_SESSION_FILE='template.nxs'
 REMOTE_USERNAME='username'
 REMOTE_PASSWORD='password'
-xargs -L 1 -a <(awk 'BEGIN{OFS="\t"}{print " -i "$2 " -o "$1".nxs"}' < hostname2ip.txt) \
-  ./generate_nx_session_file.sh \
-    -t template.nxs \
-    -u ${REMOTE_USERNAME} \
-    -p ${REMOTE_PASSWORD}
+
+xargs -L 1 -a <(awk '{outfile=$1; sub(/[=,_]/, "-", outfile); print " --host ", $2, " --output ", outfile".nxs"}' < hostname2ip.txt) \
+  perl nx_template2session_file.pl \
+    --template "${TEMPLATE_NX_SESSION_FILE}" \
+    --username "${REMOTE_USERNAME}" \
+    --password "${REMOTE_PASSWORD}"
 ```
+

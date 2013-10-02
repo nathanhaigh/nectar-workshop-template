@@ -1,63 +1,3 @@
-#!/bin/bash
-usage="USAGE: $(basename $0) [-h] [-t <template NX session filename>] -i <ip or hostname> -u <username> -p <password> -o <output NX session filename>
-
-Using a hostname to IP address map file called hostname2ip.txt:
-
-  where:
-    -h Show this help text
-    -t NX Session template filename [Default: template.nxs]
-    -i IP/hostname of remote machine
-    -u Username
-    -p Password
-    -o Output NX Session filename
-"
-# Default command line argument values
-#####
-NXS_TEMPLATE_FILE="template.nxs"
-USER_NAME=
-USER_PASSWORD=
-OUTPUT_SESSION_FILE=
-HOST_IP=
-
-# parse any command line options to change default values
-while getopts ":ht:i:u:p:o:" opt; do
-case ${opt} in
-    h) echo "${usage}"
-       exit
-       ;;
-    t) NXS_TEMPLATE_FILE=${OPTARG}
-       ;;
-    i) HOST_IP=${OPTARG}
-       ;;
-    u) USER_NAME=${OPTARG}
-       ;;
-    p) USER_PASSWORD=${OPTARG}
-       ;;
-    o) OUTPUT_SESSION_FILE=$(echo ${OPTARG} | tr '=,_' '-')
-       ;;
-    ?) printf "Illegal option: '-%s'\n" "${OPTARG}" >&2
-       echo "${usage}" >&2
-       exit 1
-       ;;
-    :)
-      echo "Option -${OPTARG} requires an argument." >&2
-      echo "${usage}" >&2
-      exit 1
-      ;;
-  esac
-done
-
-# Ensure we have all the required variables set 
-if [[ -z ${NXS_TEMPLATE_FILE} ]] || [[ -z ${USER_NAME} ]] || [[ -z ${USER_PASSWORD} ]] || [[ -z ${OUTPUT_SESSION_FILE} ]] || [[ -z ${HOST_IP} ]]
-then
-  echo "${usage}" >&2
-  exit 1
-fi
-
-
-# We embed the NX password scrambling script in a "heredoc" so we don't have to maintain it as a seperate file
-NX_PASSWORD_SCRAMBLER_SCRIPT=`mktemp --tmpdir=/tmp`
-cat > ${NX_PASSWORD_SCRAMBLER_SCRIPT} <<'__NX_PASSWORD_SCRAMBLER__'
 #!/usr/bin/perl
 # Obtained from: http://www.nomachine.com/ar/view.php?ar_id=AR01C00125
 use strict;
@@ -219,12 +159,4 @@ sub substr_replace {
   }
   return $tmp_str;
 }
-__NX_PASSWORD_SCRAMBLER__
-USER_PASSWORD=$(perl ${NX_PASSWORD_SCRAMBLER_SCRIPT} ${USER_PASSWORD})
-USER_PASSWORD=$(echo ${USER_PASSWORD} | sed -e "s/[\@&]/\\&/g")
-rm ${NX_PASSWORD_SCRAMBLER_SCRIPT}
-
-perl -ne 's@<option key="Server host" value="" />@<option key="Server host" value="'${HOST_IP}'" />@; s@<option key="User" value=""@<option key="User" value="'${USER_NAME}'"@; s@<option key="Auth" value="EMPTY_PASSWORD" />@<option key="Auth" value="'${USER_PASSWORD}'" />@; print' < ${NXS_TEMPLATE_FILE} > ${OUTPUT_SESSION_FILE}
-
-#sed -e 's@<option key="Server host" value="" />@<option key="Server host" value="'${HOST_IP}'" />@; s@<option key="User" value=""@<option key="User" value="'${USER_NAME}'"@; s@<option key="Auth" value="EMPTY_PASSWORD" />@<option key="Auth" value="'${USER_PASSWORD}'" />@; print' < ${NXS_TEMPLATE_FILE} > ${OUTPUT_SESSION_FILE}
 
