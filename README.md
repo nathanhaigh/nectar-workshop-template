@@ -27,10 +27,93 @@ TEMPLATE_NX_SESSION_FILE='template.nxs'
 REMOTE_USERNAME='username'
 REMOTE_PASSWORD='password'
 
-xargs -L 1 -a <(awk '{outfile=$1; sub(/[=,_]/, "-", outfile); print " --host ", $2, " --output ", outfile".nxs"}' < hostname2ip.txt) \
+xargs -L 1 -a <(awk '{gsub(/[=,_]/, "-", $1); print " --host ", $2, " --output ", $1".nxs"}' < hostname2ip.txt) \
   perl nx_template2session_file.pl \
     --template "${TEMPLATE_NX_SESSION_FILE}" \
     --username "${REMOTE_USERNAME}" \
     --password "${REMOTE_PASSWORD}"
 ```
 
+# Customising VM's During Instantiation
+VM's launched from a particular image can be customised such that they differ from that
+base image. This is useful for things such as:
+
+* Setting the password of the default user on the image
+* Adding new users and setting their passwords
+* Installing new software from package repositories
+* Pulling data onto the VM instances
+* Setting the timezone
+* Adding convienient desktop links to applications, websites etc
+
+All you need do is to pass a script to ```instantiate_vms.sh``` using the ```-u```
+argument. This script is then executed by the root user during instantiation. Many
+languages are supported, just ensure you have the correct "shebang" line and the
+language is supported/installed on the base image.
+
+Here's an example file (```post-instantiation.sh```), written in Bash, for running on an Ubuntu 12.04 base image:
+```bash
+#!/bin/bash
+# Define some variables for use in the following script
+REMOTE_UBUNTU_PASSWORD='secure_ubuntu_password'
+REMOTE_USER_USERNAME='new_username'
+REMOTE_USER_FULL_NAME='Full Name of New User'
+REMOTE_USER_PASSWORD='secure_new_user_password'
+TIMEZONE='Australia/Adelaide'
+FIREFOX_LINK_URL='http://australianbioinformatics.net/'
+#####
+
+# Update the ubuntu user's password
+echo -e "ubuntu:${REMOTE_UBUNTU_PASSWORD}" | chpasswd
+
+# Ensure we start with an up-to-date base system
+apt-get update && apt-get dist-upgrade -y
+
+# Add the trainee user and set the account password
+useradd --shell /bin/bash --create-home --comment "${REMOTE_USER_FULL_NAME}" ${REMOTE_USER_USERNAME}
+echo -e "swc_trainee:${REMOTE_USER_PASSWORD}" | chpasswd
+
+# Set the time zone
+#####
+echo "${TIMEZONE}" > /etc/timezone
+dpkg-reconfigure --frontend noninteractive tzdata
+
+# Install a bunch of packages from the repositories
+#####
+apt-get install -y \
+  raxml \
+  muscle \
+  python-biopython \
+  python-pip \
+  openjdk-7-jdk \
+  python-nose \
+  gedit-plugins \
+  gedit-developer-plugins \
+  python-coverage \
+  python-matplotlib \
+  zlib1g-dev \
+  python-scipy
+
+# Add some desktop links
+#####
+# First, ensure the user has a Desktop directory into which we'll put these files
+if [[ ! -e "/home/${REMOTE_USER_USERNAME}/Desktop" ]]; then
+  mkdir --mode=755 /home/${REMOTE_USER_USERNAME}/Desktop
+fi
+
+# Add a Firefox shortcut to ${FIREFOX_LINK_URL} onto the desktop and make it executable
+#####
+echo "[Desktop Entry]
+Name=Australian Bioinformatics Network
+Type=Application
+Encoding=UTF-8
+Comment=Link to Australian Bioinformatics Network
+Exec=firefox ${FIREFOX_LINK_URL}
+Icon=/usr/lib/firefox/browser/icons/mozicon128.png
+Terminal=FALSE" > /home/${REMOTE_USER_USERNAME}/Desktop/firefox_abn_link.desktop
+chmod +x /home/${REMOTE_USER_USERNAME}/Desktop/firefox_abn_link.desktop
+
+# Since this script is run as root, any files created by it are owned by root:root.
+# Therefore, we'll ensure all files under /home/${REMOTE_USER_USERNAME} are owned
+# by the correct user:
+chown --recursive ${REMOTE_USER_USERNAME}:${REMOTE_USER_USERNAME} /home/${REMOTE_USER_USERNAME}/
+```
