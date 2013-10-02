@@ -38,6 +38,7 @@ xargs -L 1 -a <(awk '{gsub(/[=,_]/, "-", $1); print " --host ", $2, " --output "
 VM's launched from a particular image can be customised such that they differ from that
 base image. This is useful for things such as:
 
+* Updating and upgrading the currently installed software
 * Setting the password of the default user on the image
 * Adding new users and setting their passwords
 * Installing new software from package repositories
