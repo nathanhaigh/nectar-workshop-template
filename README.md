@@ -29,18 +29,22 @@ FLAVOR_SIZE=1
 The NXServer image is based on Ubuntu 12.04 64bit but has been configured with an NX server. By default,
 these instantiated VMs will be named ```VM-???``` where ```???``` is ```001 - 030```.
 
+The script will also generated a ```hostname2ip.txt``` file which contains mappings
+of the VM name to their IP addresses. This is useful for performing post-instantiation sysadmin
+tasks using parallel-shell tools (see below).
+
 # Generating NoMachine NX Session Files
 Generate the NoMachine NX session files for all the VMs listed in the ```hostname2ip.txt``` file:
 ```bash
 TEMPLATE_NX_SESSION_FILE='template.nxs'
-REMOTE_USERNAME='username'
-REMOTE_PASSWORD='password'
+REMOTE_USER_USERNAME='username'
+REMOTE_USER_PASSWORD='password'
 
 xargs -L 1 -a <(awk '{gsub(/[=,_]/, "-", $1); print " --host ", $2, " --output ", $1".nxs"}' < hostname2ip.txt) \
   perl nx_template2session_file.pl \
     --template "${TEMPLATE_NX_SESSION_FILE}" \
-    --username "${REMOTE_USERNAME}" \
-    --password "${REMOTE_PASSWORD}"
+    --username "${REMOTE_USER_USERNAME}" \
+    --password "${REMOTE_USER_PASSWORD}"
 ```
 
 The supplied NoMachine template session file ```template.nxs``` will result in NX
@@ -157,3 +161,39 @@ chown --recursive ${REMOTE_USER_USERNAME}:${REMOTE_USER_USERNAME} /home/${REMOTE
 
 Many languages are supported for this script, just ensure you have the correct "shebang" line and the
 language is supported/installed on the image you're instantiating.
+
+# Administering Multiple VM's After Instantiation
+Once you've instantiated all the VMs you need, you may find there are things you forgot
+to install/configure, a user may want an additional package installed etc. Fear not,
+parallel-shell (http://code.google.com/p/parallel-ssh/) to the rescue. Parallel-shell
+provides parallel versions of ```SSH``` tools like ```ssh```, ```scp```, ```rsync```,
+```nuke``` and ```slurp```. Each command takes a list of hostnames/ip addresses, the
+username and password to log into each remote computer.
+
+To install these tool on Ubuntu, simply run the following:
+```bash
+sudo apt-get install -y pssh
+```
+
+In the following examples, we'll extract the IP addresses from ```hostname2ip.txt``` which was created
+by the ```instantiate_vms.sh``` script:
+```bash
+# Install kate and konsole on all the instantiated VMs
+SUDO_USER_USERNAME='ubuntu'
+parallel-ssh --hosts=<(cut -f 2 hostname2ip.txt) --user=${SUDO_USER_USERNAME} --askpass -O UserKnownHostsFile=/dev/null -O StrictHostKeyChecking=no --timeout=0 sudo apt-get install -y kate konsole
+```
+
+```bash
+# Copy a file to a user's Desktop
+REMOTE_USER_USERNAME='a_username'
+parallel-scp --hosts=<(cut -f 2 hostname2ip.txt) --user=${REMOTE_USER_USERNAME} --askpass -O UserKnownHostsFile=/dev/null -O StrictHostKeyChecking=no --timeout=0 ./a_file /home/$REMOTE_USER_USERNAME/Desktop/
+```
+
+```bash
+# Pull a file from every VM to the current computer
+# The following will put the files under ./<ip_address>/
+REMOTE_USER_USERNAME='a_username'
+parallel-slurp --hosts=<(cut -f 2 hostname2ip.txt) --user=${REMOTE_USER_USERNAME} --askpass -O UserKnownHostsFile=/dev/null -O StrictHostKeyChecking=no --timeout=0 -L ./ /home/$REMOTE_USER_USERNAME/some_file some_file
+```
+
+
