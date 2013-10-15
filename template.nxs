@@ -84,7 +84,7 @@
 
 <!-- Remote Computer Login Details -->
 <option key="User" value="" />
-<option key="Auth" value="" />
+<option key="Auth" value="EMPTY_PASSWORD" />
 
 <option key="Guest Mode" value="false" />
 <option key="Guest password" value="" />
@@ -121,7 +121,7 @@ mbX5nxrld3wi5titTnX+8s4IKv29HJguPvOK/SI7cjzA+SqNfD7qEo8CFDIm1xRf
 <option key="Color Depth" value="8" />
 <option key="Domain" value="" />
 <option key="Image Cache" value="true" />
-<option key="Password" value="" />
+<option key="Password" value="EMPTY_PASSWORD" />
 <option key="Remember" value="true" />
 <option key="Run application" value="false" />
 <option key="Server" value="" />
