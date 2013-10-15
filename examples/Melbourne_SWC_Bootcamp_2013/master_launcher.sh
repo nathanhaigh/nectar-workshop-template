@@ -19,7 +19,7 @@ NECTAR_IMAGE_NAME='Software Carpentry'
 VM_NAME_PREFIX='SWC_Bootcamp-'
 CELL='monash'
 KEYPAIR_NAME='pt-1589'
-NUMBER_OF_VMS=1
+NUMBER_OF_VMS=40
 STARTING_FROM_NUMBER=1
 FLAVOR_SIZE=1
 TEMPLATE_NX_SESSION_FILE='../../template.nxs'
@@ -32,12 +32,10 @@ POST_INSTANTIATION_SCRIPT='post_instantiation_script.sh'
 # Generate a password for the default ubuntu user so we can perform parallel-ssh commands on all instantiated VMs with ease
 PASSWORD_LENGTH=10
 REMOTE_UBUNTU_PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-${PASSWORD_LENGTH}};echo;)
-REMOTE_UBUNTU_PASSWORD='bioubuntu'
 # Create a new trainee user with password
 REMOTE_USER_USERNAME='swc_trainee'
 REMOTE_USER_FULL_NAME='Software Carpentry Trainee'
 REMOTE_USER_PASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-${PASSWORD_LENGTH}};echo;)
-REMOTE_USER_PASSWORD='trainee'
 TIMEZONE='Australia/Melbourne'
 
 echo "=============================="
