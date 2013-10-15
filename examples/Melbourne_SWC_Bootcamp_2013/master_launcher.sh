@@ -52,7 +52,7 @@ echo -e "ubuntu:${REMOTE_UBUNTU_PASSWORD}" | chpasswd
 
 # Add the trainee user and set the account password
 useradd --shell /bin/bash --create-home --comment "${REMOTE_USER_FULL_NAME}" ${REMOTE_USER_USERNAME}
-echo -e "swc_trainee:${REMOTE_USER_PASSWORD}" | chpasswd
+echo -e "${REMOTE_USER_USERNAME}:${REMOTE_USER_PASSWORD}" | chpasswd
 
 # Set the time zone
 #####
