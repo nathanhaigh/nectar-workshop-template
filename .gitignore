@@ -1,3 +1,4 @@
 hostname2ip.txt
 *.nxs
 *.tar.gz
+post_instantiation_script.sh
