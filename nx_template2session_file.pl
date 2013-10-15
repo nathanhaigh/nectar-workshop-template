@@ -6,6 +6,7 @@ use warnings;
 use strict;
 use XML::Twig;
 use Getopt::Long;
+use File::Basename;		# fordirname()
 
 my $template_file;
 my $host_ip;
@@ -22,7 +23,9 @@ GetOptions (
 ) or die("Error in command line arguments\n");
 die "output filename ($output_file) cannot contain illegal characters: =,_\n" if $output_file =~ /[=,_]/;
 
-my $scrambled_password = `perl nx_password_scrambler.pl $password`;
+my $dir_containing_this_script = dirname(__FILE__);
+my $scrambled_password = `perl $dir_containing_this_script/nx_password_scrambler.pl $password`;
+
 my $twig = XML::Twig->new(
   pretty_print => 'indented',
   keep_encoding => 1,
