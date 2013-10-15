@@ -207,7 +207,7 @@ Icon=/usr/lib/firefox/browser/icons/mozicon128.png
 Terminal=FALSE" > /home/${REMOTE_USER_USERNAME}/Desktop/dropcanvas.desktop
 
 chown ${REMOTE_USER_USERNAME}:${REMOTE_USER_USERNAME} /home/${REMOTE_USER_USERNAME}/Desktop/*.desktop
-chmod 744 /home/${REMOTE_USER_USERNAME}/Desktop/*.desktop
+chmod u+x /home/${REMOTE_USER_USERNAME}/Desktop/*.desktop
 
 reboot
 __SCRIPT__
