@@ -10,7 +10,7 @@ NECTAR_IMAGE_NAME='Software Carpentry'
 VM_NAME_PREFIX='basic-'
 CELL='monash'
 KEYPAIR_NAME='pt-1589'
-NUMBER_OF_VMS=1
+NUMBER_OF_VMS=2
 STARTING_FROM_NUMBER=1
 FLAVOR_SIZE=1
 TEMPLATE_NX_SESSION_FILE='../../template.nxs'
@@ -26,11 +26,7 @@ REMOTE_UBUNTU_PASSWORD='bioubuntu'
 REMOTE_USER_USERNAME='trainee'
 REMOTE_USER_FULL_NAME='Trainee'
 REMOTE_USER_PASSWORD='trainee'
-
-echo "=============================="
-echo "ubuntu:${REMOTE_UBUNTU_PASSWORD}"
-echo "${REMOTE_USER_USERNAME}:${REMOTE_USER_PASSWORD}"
-echo "=============================="
+TIMEZONE='Australia/Adelaide'
 
 # The post-instantiation heredoc
 #####
@@ -41,7 +37,7 @@ REMOTE_UBUNTU_PASSWORD='secure_ubuntu_password'
 REMOTE_USER_USERNAME='new_username'
 REMOTE_USER_FULL_NAME='Full Name of New User'
 REMOTE_USER_PASSWORD='secure_new_user_password'
-TIMEZONE='Australia/Adelaide'
+TIMEZONE='${TIMEZONE}'
 FIREFOX_LINK_URL='http://australianbioinformatics.net/'
 #####
 
