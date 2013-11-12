@@ -3,7 +3,6 @@
 # BUG: Can't regenerate the NX session files with this script as the random password generated on each run of this script
 #      won't then match VM's previously launched with this file. Use something like Perl's XML::Twig module (http://search.cpan.org/dist/XML-Twig/)
 #####
-#OS_PASSWORD="Y2EyNTc0Yjg0N2M0Yzgx"
 #sudo apt-get install -y git
 
 #git clone https://github.com/nathanhaigh/nectar-workshop-template.git SWC_boot_camp_Adelaide
