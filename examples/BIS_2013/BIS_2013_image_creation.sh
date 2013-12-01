@@ -49,7 +49,8 @@ apt-get update
 #####
 # Software installation for general workshop tools
 #####
-apt-get install -y --option dir::cache::archives="/mnt/apt-cache" dos2unix debconf-utils
+mkdir -p /etc/skel/BIS_2013/{Tue,Wed,Thu,Fri}
+apt-get install -y --option dir::cache::archives="/mnt/apt-cache" dos2unix debconf-utils libcanberra-gtk-module
 
 # Install acroread. We need to mess around with the install as the 64bit version of the package doesn't install
 # Enable partner repo in /etc/apt/sources.list
@@ -125,13 +126,16 @@ cd ../
 rm -r pycogent-master
 
 # Setup an iPython notebook profile
+pip install "ipython[all]>=1.0" --upgrade
 ipython profile create ipynbs
 wget https://www.dropbox.com/s/20rvl87rpbqz7vh/profile_ipynbs.tar.gz
 tar xzf profile_ipynbs.tar.gz && rm profile_ipynbs.tar.gz
 rm -rf .ipython/profile_ipynbs && mv profile_ipynbs .ipython/
 chown -R root:root .ipython
 mv .ipython /etc/skel/
-# User needs to start ipython notebook server using "ipython notebook --profile=ipynbs"
+sed -i '/\/home\/vagrant/ s//BIS_2013\/Tue\/Gavin_Huttley\/ipynbs/' /etc/skel/.ipython/profile_ipynbs/ipython_notebook_config.py
+mkdir -p /etc/skel/BIS_2013/Tue/Gavin_Huttley/ipynbs
+# User needs to start ipython notebook server using "ipython notebook --profile=ipynbs 127.0.0.1:8888"
 
 # Create an upstart job for running the iPython notebook server
 #echo "start on filesystem
@@ -140,7 +144,6 @@ mv .ipython /etc/skel/
 #exec ipython notebook --profile=ipynbs
 #" > /etc/init/ipynbs.conf
 
-# Late arrivals
 # Install seaview
 mkdir seaview
 cd seaview
@@ -383,13 +386,20 @@ __SCRIPT__
 
 # Launch the VMs
 #####
-../../instantiate_vms.sh \
-  -i $(nova image-show "${NECTAR_IMAGE_NAME}" | fgrep -w id | perl -ne 'print "$1" if /\|\s+(\S+)\s+\|$/') \
-  -p "${VM_NAME_PREFIX}" \
-  -n "${NUMBER_OF_VMS}" \
-  -f "${STARTING_FROM_NUMBER}" \
-  -s "${FLAVOR_SIZE}" \
-  -c "${CELL}" \
-  -k "${KEYPAIR_NAME}" \
-  -u "${POST_INSTANTIATION_SCRIPT}"
+#../../instantiate_vms.sh \
+#  -i $(nova image-show "${NECTAR_IMAGE_NAME}" | fgrep -w id | perl -ne 'print "$1" if /\|\s+(\S+)\s+\|$/') \
+#  -p "${VM_NAME_PREFIX}" \
+#  -n "${NUMBER_OF_VMS}" \
+#  -f "${STARTING_FROM_NUMBER}" \
+#  -s "${FLAVOR_SIZE}" \
+#  -c "${CELL}" \
+#  -k "${KEYPAIR_NAME}" \
+#  -u "${POST_INSTANTIATION_SCRIPT}"
 
+
+# download the sanpshot and upload it as an image
+#VM_NAME=${VM_NAME_PREFIX}$(seq --format="%03.f" ${STARTING_FROiM_NUMBER})
+#VM_NAME='BIS-2013-building'
+#echo nova image-create --poll "${VM_NAME}" "${VM_NAME}"-snap
+#echo glance image-download --progress --file ${VM_NAME}.raw "${VM_NAME}"-snap
+#echo glance image-create --name BIS-2013 --progress --file "${VM_NAME}.raw" --disk-format qcow2 --container-format bare --is-public True
