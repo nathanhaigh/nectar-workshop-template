@@ -5,7 +5,7 @@
 
 # Define parameters for the VMs we want to launch
 #####
-NECTAR_IMAGE_NAME='BIS-2013-v1'
+NECTAR_IMAGE_NAME='BIS-2013'
 VM_NAME_PREFIX='BIS_2013-'
 CELL='monash'
 KEYPAIR_NAME='pt-1589'
@@ -60,7 +60,7 @@ mkdir -p /etc/skel/BIS_2013/{Tue,Wed,Thu,Fri}
 #####
 # Software installation for Tue - Phylogenetics
 #####
-# done - Need user to start ipython notebook server using something like: ipython notebook --profile=ipynbs
+# done - Need user to start ipython notebook server using something like: ipython notebook --profile=ipynbs 127.0.0.1:8888
 # PhyML binaries installed under /opt/phyml-20120412/src/
 # BiQAnalyzerHT installed under /opt/BiQAnalyzerHT/
 
