@@ -1,8 +1,4 @@
 #!/bin/bash
-# Launch the Adelaide SWC Boot Camp VMs
-# BUG: Can't regenerate the NX session files with this script as the random password generated on each run of this script
-#      won't then match VM's previously launched with this file. Use something like Perl's XML::Twig module (http://search.cpan.org/dist/XML-Twig/)
-#####
 
 # Define parameters for the VMs we want to launch
 #####
