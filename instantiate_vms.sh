@@ -98,7 +98,7 @@ for i in `seq --format="${FORMAT}" ${FIRST} ${LAST}`; do
     echo "Booting"
     (( n_booted++ ))
     if [[ ${DRYRUN} == 0 ]]; then
-        nova boot --hint cell=${CELL} --flavor=${FLAVOUR} --image=${IMAGE_ID} ${INSTANCE_NAME} --security-groups="SSH" --key-name=${SSH_KEY_NAME} --user-data=${USER_DATA_FILE} --meta description="${VM_NAME_PREFIX}${i}" --meta creator='Nathan S. Watson-Haigh'
+        nova boot --availability-zone=${CELL} --flavor=${FLAVOUR} --image=${IMAGE_ID} ${INSTANCE_NAME} --security-groups="SSH" --key-name=${SSH_KEY_NAME} --user-data=${USER_DATA_FILE} --meta description="${VM_NAME_PREFIX}${i}" --meta creator='Nathan S. Watson-Haigh'
     fi
   else
     echo "A VM with this name already exists"
